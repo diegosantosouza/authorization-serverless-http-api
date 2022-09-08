@@ -15,7 +15,6 @@ provider:
   name: aws
   runtime: nodejs14.x
   region: us-east-1
-  memorySize: 256 # mb
   timeout: 5 # seconds
   logRetentionInDays: 90
   logs:
@@ -29,12 +28,11 @@ provider:
         functionName: custom-authorization
         enableSimpleResponses: true
         payloadVersion: '2.0'
-  # environment: 
-    # AUTHORIZATION_KEY: ${ssm:/authorization-key-${opt:stage}~true}
 
 functions:
   api:
     handler: src/handler.handler
+    memorySize: 256 # mb
     events:
       - httpApi:
           method: '*'
@@ -44,6 +42,9 @@ functions:
   
   custom-authorization:
     handler: src/authorizer/authorizer.handler
+    memorySize: 128 # mb
+    environment:
+      AUTHORIZATION_KEY: ${ssm:/authorization-key-${opt:stage}}
 
 package:
   individually: true

@@ -3,12 +3,52 @@ app: authorization-serverless-http-api
 service: authorization-serverless-http-api
 frameworkVersion: '3'
 
+custom:
+  # Our stage is based on what is passed in when running serverless
+  # commands. Or falls back to what we have set in the provider section.
+  stage: ${opt:stage, 'offline'}
+  serverless-offline:
+    httpPort: 4000
+    noPrependStageInUrl: true
+
 provider:
   name: aws
   runtime: nodejs14.x
+  region: us-east-1
+  memorySize: 256 # mb
+  timeout: 5 # seconds
+  logRetentionInDays: 90
+  logs:
+    httpApi: true
+  httpApi:
+    # metrics: true # Enable if you need
+    cors: true
+    authorizers:
+      customAuthorization:
+        type: request
+        functionName: custom-authorization
+        enableSimpleResponses: true
+        payloadVersion: '2.0'
+  # environment: 
+    # AUTHORIZATION_KEY: ${ssm:/authorization-key-${opt:stage}~true}
 
 functions:
   api:
-    handler: handler.handler
+    handler: src/handler.handler
     events:
-      - httpApi: '*'
+      - httpApi:
+          method: '*'
+          path: '*'
+          authorizer:
+            name: customAuthorization
+  
+  custom-authorization:
+    handler: src/authorizer/authorizer.handler
+
+package:
+  individually: true
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-dotenv-plugin
+  - serverless-offline

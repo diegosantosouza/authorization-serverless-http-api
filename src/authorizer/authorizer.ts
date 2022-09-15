@@ -9,7 +9,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     if (regex.test(event.path)) return { isAuthorized: true };
   }
 
-  if (event.headers.authorization === '123') {
+  if (event.headers.authorization === process.env.AUTHORIZATION_KEY) {
     return { isAuthorized: true };
   }
 

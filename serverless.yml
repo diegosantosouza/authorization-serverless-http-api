@@ -41,8 +41,6 @@ functions:
           path: '*'
           authorizer:
             name: customAuthorization
-            scopes:
-              - "/closed-route"
   
   custom-authorization:
     handler: src/authorizer/authorizer.handler

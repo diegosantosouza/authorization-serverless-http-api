@@ -25,7 +25,9 @@ provider:
     authorizers:
       customAuthorization:
         type: request
+        identitySource: $request.header.Authorization
         functionName: custom-authorization
+        resultTtlInSeconds: 300
         enableSimpleResponses: true
         payloadVersion: '2.0'
 
@@ -39,6 +41,8 @@ functions:
           path: '*'
           authorizer:
             name: customAuthorization
+            scopes:
+              - "/closed-route"
   
   custom-authorization:
     handler: src/authorizer/authorizer.handler
